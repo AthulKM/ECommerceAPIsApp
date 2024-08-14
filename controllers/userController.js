@@ -15,7 +15,7 @@ export const userRegistration = async (req, res) => {
             })
         }
 
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const hashedPassword = await bcrypt.hash(req.body.password, 12);
 
 
         const user = new User({
@@ -27,8 +27,7 @@ export const userRegistration = async (req, res) => {
         await user.save();
 
         const token = jwt.sign({
-            username: user.username,
-            email: user.email
+            id:user._id
         }, process.env.SECRET_KEY, { expiresIn: '1h' }
         );
         console.log(process.env.SECRET_KEY);
@@ -42,6 +41,45 @@ export const userRegistration = async (req, res) => {
     } catch (error) {
         res.status(400).json({
             message: error.message
+        });
+    }
+};
+
+export const userLogin = async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found",
+                error: true,
+                status: "failure"
+            });
+        }
+        const isMatching = await bcrypt.compare(req.body.password, user.password);
+
+        if (!isMatching) {
+            return res.status(400).json({
+                message: "Invalid Password",
+                error: true,
+                status: "Failure"
+            });
+        }
+        const token = jwt.sign({
+            userId: user._id
+        }, process.env.SECRET_KEY,
+            { expiresIn: '1h' });
+        
+        return res.status(200).json({
+            message: "Login successful",
+            error: false,
+            status: "Success",
+            token: token
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message,
+            error: true,
+            status: "Failure"
         });
     }
 };
