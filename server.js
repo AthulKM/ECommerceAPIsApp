@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send('Welcome to the user management API');
+    res.send('Welcome to the E-Commerce App management API');
 });
 
 connectDB();
