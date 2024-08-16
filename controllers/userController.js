@@ -21,16 +21,18 @@ export const userRegistration = async (req, res) => {
         const user = new User({
             "username": req.body.username,
             "email": req.body.email,
-            "password":hashedPassword
+            "password": hashedPassword,
+            "role":req.body.role
         });
 
         await user.save();
 
         const token = jwt.sign({
-            id:user._id
-        }, process.env.SECRET_KEY, { expiresIn: '1h' }
+            _id: user._id,
+            role:user.role
+        }, process.env.SECRET_KEY, { expiresIn: '24h' }
         );
-        console.log(process.env.SECRET_KEY);
+        
         return res.status(201).json({
             message: "Registration successful",
             status: "Success",
@@ -47,7 +49,7 @@ export const userRegistration = async (req, res) => {
 
 export const userLogin = async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.body.email });
+        const user = await User.findOne({ "email": req.body.email });
         if (!user) {
             return res.status(400).json({
                 message: "User not found",
@@ -65,9 +67,10 @@ export const userLogin = async (req, res) => {
             });
         }
         const token = jwt.sign({
-            userId: user._id
+            _id: user._id,
+            role:user.role
         }, process.env.SECRET_KEY,
-            { expiresIn: '1h' });
+            { expiresIn: '24h' });
         
         return res.status(200).json({
             message: "Login successful",
@@ -77,6 +80,32 @@ export const userLogin = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
+            message: error.message,
+            error: true,
+            status: "Failure"
+        });
+    }
+};
+
+export const userDetails = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        if (!user) {
+            res.status(404).json({
+                message: "User does not exist !!!",
+                error: true,
+                status: "Failure"
+            });
+
+        }
+        return res.status(200).json({
+            message: "User profile fetched successfully",
+            error: false,
+            status: "Success",
+            user: user
+        });
+    } catch (error) {
+        res.send(500).json({
             message: error.message,
             error: true,
             status: "Failure"

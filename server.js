@@ -2,6 +2,9 @@ import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import errorHandler from './middlewares/errorMiddleware.js';
 
 
 dotenv.config();
@@ -17,6 +20,10 @@ app.get('/', (req, res) => {
 connectDB();
 
 app.use('/api', userRoutes);
+app.use('/api', productRoutes);
+app.use('/api', orderRoutes);
+
+app.use(errorHandler);
 
 
 const PORT = process.env.PORT || 3001;
