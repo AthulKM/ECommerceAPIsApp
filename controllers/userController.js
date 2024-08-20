@@ -1,18 +1,14 @@
 import User from "../models/userModel.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import ErrorResponse from "../utils/errorResponse.js";
 
-dotenv.config();
 
 export const userRegistration = async (req, res) => {
-    try {
+    
         const existingUser = await User.findOne({ username: req.body.username });
         if (existingUser) {
-            return res.status(400).json({
-                message: "User already exists", status: "Failure",
-                error: true
-            })
+            throw new ErrorResponse("User already exists", 400);
         }
 
         const hashedPassword = await bcrypt.hash(req.body.password, 12);
@@ -27,11 +23,7 @@ export const userRegistration = async (req, res) => {
 
         await user.save();
 
-        const token = jwt.sign({
-            _id: user._id,
-            role:user.role
-        }, process.env.SECRET_KEY, { expiresIn: '24h' }
-        );
+        
         
         return res.status(201).json({
             message: "Registration successful",
@@ -40,31 +32,19 @@ export const userRegistration = async (req, res) => {
             token:token
         });
 
-    } catch (error) {
-        res.status(400).json({
-            message: error.message
-        });
-    }
+    
 };
 
-export const userLogin = async (req, res) => {
-    try {
+export const userLogin = async (req, res, next) => {
+    
         const user = await User.findOne({ "email": req.body.email });
         if (!user) {
-            return res.status(400).json({
-                message: "User not found",
-                error: true,
-                status: "failure"
-            });
+            throw new ErrorResponse("User not found", 400);
         }
         const isMatching = await bcrypt.compare(req.body.password, user.password);
 
         if (!isMatching) {
-            return res.status(400).json({
-                message: "Invalid Password",
-                error: true,
-                status: "Failure"
-            });
+            throw new ErrorResponse("Invalid Password", 400);
         }
         const token = jwt.sign({
             _id: user._id,
@@ -78,24 +58,14 @@ export const userLogin = async (req, res) => {
             status: "Success",
             token: token
         });
-    } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-            error: true,
-            status: "Failure"
-        });
-    }
+    
 };
 
-export const userDetails = async (req, res) => {
-    try {
+export const userDetails = async (req, res, next) => {
+    
         const user = await User.findById(req.user._id).select('-password');
         if (!user) {
-            res.status(404).json({
-                message: "User does not exist !!!",
-                error: true,
-                status: "Failure"
-            });
+            return next(ErrorResponse("User does not exist !!!", 404));
 
         }
         return res.status(200).json({
@@ -104,12 +74,6 @@ export const userDetails = async (req, res) => {
             status: "Success",
             user: user
         });
-    } catch (error) {
-        res.send(500).json({
-            message: error.message,
-            error: true,
-            status: "Failure"
-        });
-    }
+    
 };
 

@@ -8,12 +8,13 @@ import {
     userRegistration
 } from '../controllers/userController.js';
 import { authenticateToken } from '../middlewares/authMiddleware.js';
+import tryCatchHandler from '../middlewares/tryCatchMiddleware.js';
 
 const router = express.Router();
 
-router.post('/userRegistration', userRegistration);
-router.post('/userLogin', userLogin);
-router.get('/profile', authenticateToken, userDetails);
+router.post('/userRegistration', tryCatchHandler(userRegistration));
+router.post('/userLogin', tryCatchHandler(userLogin));
+router.get('/profile', authenticateToken, tryCatchHandler(userDetails));
 
 
 export default router;
