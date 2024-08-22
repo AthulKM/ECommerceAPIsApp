@@ -20,6 +20,7 @@ const userSchema = new Schema({
     "role": {
         type: String,
         enum: ['user', 'admin'], // Restrict to specific roles
+        required:true,
         default: 'user' // Default role is 'user'
     }
 });

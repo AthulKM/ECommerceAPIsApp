@@ -28,8 +28,7 @@ export const userRegistration = async (req, res) => {
         return res.status(201).json({
             message: "Registration successful",
             status: "Success",
-            error: false,
-            token:token
+            error: false
         });
 
     
