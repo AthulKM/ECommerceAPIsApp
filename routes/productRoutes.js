@@ -6,11 +6,11 @@ import tryCatchHandler from '../middlewares/tryCatchMiddleware.js';
 
 const router = express.Router();
 
-router.post('/addProduct', authenticateToken, admin, upload.single('image'), tryCatchHandler(createProduct));
+router.post('/Product', authenticateToken, admin, upload.single('image'), tryCatchHandler(createProduct));
 
-router.get('/allProducts', tryCatchHandler(getAllProducts))
-router.get('/getOneProduct/:id', tryCatchHandler(getProductById));
-router.put('/updateProduct/:id', protect, admin, upload.single('image'), tryCatchHandler(updateProductById));
-router.delete('/deleteProduct/:id', authenticateToken, admin, tryCatchHandler(deleteProductById));
+router.get('/Products', tryCatchHandler(getAllProducts))
+router.get('/Product/:id', tryCatchHandler(getProductById));
+router.put('/Product/:id', protect, admin, upload.single('image'), tryCatchHandler(updateProductById));
+router.delete('/Product/:id', authenticateToken, admin, tryCatchHandler(deleteProductById));
 
 export default router;

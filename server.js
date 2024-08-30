@@ -5,13 +5,14 @@ import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import errorHandler from './middlewares/errorMiddleware.js';
-
+import cors from 'cors';
 
 dotenv.config();
 
-const app = express();
+const app = express();              
 
 app.use(express.json());
+app.use(cors());
 
 app.get('/', (req, res) => {
     res.send('Welcome to the E-Commerce App management API');
